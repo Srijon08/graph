@@ -1,0 +1,271 @@
+bool dfsMaze(vector<vector<int>> &maze, int r, int c,
+
+             vector<pair<int, int>> &path, vector<vector<bool>> &visited)
+{
+
+    int rows = maze.size(), cols = maze[0].size();
+    if (r < 0 || r >= rows || c < 0 || c >= cols)
+        return false;
+    if (maze[r][c] == 0 || visited[r][c])
+        return false;
+    visited[r][c] = true;
+    path.push_back({r, c});
+    if (r == rows - 1 && c == cols - 1)
+        return true;
+    int dr[] = {1, 0, -1, 0};
+    int dc[] = {0, 1, 0, -1};
+    for (int d = 0; d < 4; d++)
+        if (dfsMaze(maze, r + dr[d], c + dc[d], path, visited))
+            return true;
+
+    path.pop_back();
+    return false;
+}
+vector<pair<int, int>> solveMaze(vector<vector<int>> &maze)
+{
+    int rows = maze.size(), cols = maze[0].size();
+    vector<pair<int, int>> path;
+    vector<vector<bool>> visited(rows, vector<bool>(cols, false));
+    dfsMaze(maze, 0, 0, path, visited);
+    return path;
+}
+
+dfsTreasure(vector<vector<int>> &maze, int r, int c,
+            vector<pair<int, int>> &path, vector<vector<bool>> &visited)
+{
+
+    int rows = maze.size(), cols = maze[0].size();
+    if (r < 0 || r >= rows || c < 0 || c >= cols)
+        return false;
+    if (visited[r][c] || maze[r][c] == 1)
+        return false;
+    visited[r][c] = true;
+    path.push_back({r, c});
+    if (maze[r][c] == 999)
+        return true;
+    int dc[] = {0, 0, 1, -1};
+    for (int d = 0; d < 4; d++)
+        if (dfsTreasure(maze, r + dr[d], c + dc[d], path, visited))
+            return true;
+
+    path.pop_back();
+    return false;
+}
+vector<pair<int, int>> findTreasure(vector<vector<int>> &maze)
+{
+    int rows = maze.size(), cols = maze[0].size();
+    vector<pair<int, int>> path;
+    vector<vector<bool>> visited(rows, vector<bool>(cols, false));
+    dfsTreasure(maze, 0, 0, path, visited);
+    return path;
+}
+
+bool dfsWord(vector<vector<char>> &grid, const string &word,
+
+             int r, int c, int idx)
+{
+
+    if (idx == (int)word.size())
+        return true;
+    int rows = grid.size(), cols = grid[0].size();
+    if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] != word[idx])
+        return false;
+    char temp = grid[r][c];
+    grid[r][c] = ’#’;
+    bool found = dfsWord(grid, word, r + 1, c, idx + 1) ||
+                 dfsWord(grid, word, r - 1, c, idx + 1) ||
+                 dfsWord(grid, word, r, c + 1, idx + 1) ||
+                 dfsWord(grid, word, r, c - 1, idx + 1);
+
+    grid[r][c] = temp; // Restore cell
+    return found;
+}
+bool wordSearch(vector<vector<char>> &grid, const string &word)
+{
+    for (int r = 0; r < (int)grid.size(); r++)
+        for (int c = 0; c < (int)grid[0].size(); c++)
+            if (dfsWord(grid, word, r, c, 0))
+                return true;
+
+    return false;
+}
+
+void dfsTopoSort(int node, vector<vector<int>> &adj,
+                 vector<bool> &visited, stack<int> &stk)
+{
+
+    visited[node] = true;
+    for (int neighbor : adj[node])
+        if (!visited[neighbor])
+            dfsTopoSort(neighbor, adj, visited, stk);
+
+    stk.push(node);
+}
+vector<int> topologicalSort(int n, vector<pair<int, int>> &edges)
+{
+    vector<vector<int>> adj(n);
+    for (auto &e : edges)
+        adj[e.first].push_back(e.second);
+    vector<bool> visited(n, false);
+    stack<int> stk;
+    for (int i = 0; i < n; i++)
+        if (!visited[i])
+
+            5
+
+                dfsTopoSort(i, adj, visited, stk);
+
+    vector<int> order;
+    while (!stk.empty())
+    {
+        order.push_back(stk.top());
+        stk.pop();
+    }
+    return order;
+}
+
+bool dfsCycle(vector<vector<int>> &graph, int node,
+
+              vector<bool> &visited, vector<bool> &recStack)
+{
+
+    visited[node] = true;
+    recStack[node] = true;
+    for (int neighbor = 0; neighbor < (int)graph.size(); neighbor++)
+    {
+        if (graph[node][neighbor] == 0)
+            continue;
+        if (!visited[neighbor] &&
+            dfsCycle(graph, neighbor, visited, recStack))
+
+            4
+
+                return true;
+        else if (recStack[neighbor])
+            return true;
+    }
+    recStack[node] = false;
+    return false;
+}
+bool hasCycle(vector<vector<int>> &graph)
+{
+    int n = graph.size();
+    vector<bool> visited(n, false), recStack(n, false);
+    for (int i = 0; i < n; i++)
+        if (!visited[i] && dfsCycle(graph, i, visited, recStack))
+            return true;
+    return false;
+}
+
+void dfsComponent(vector<vector<int>> &graph, int node,
+
+                  vector<bool> &visited, vector<int> &component)
+{
+    visited[node] = true;
+    component.push_back(node);
+    for (int neighbor = 0; neighbor < (int)graph.size(); neighbor++)
+    {
+        if (graph[node][neighbor] == 1 && !visited[neighbor])
+            dfsComponent(graph, neighbor, visited, component);
+    }
+}
+vector<vector<int>> connectedComponents(vector<vector<int>> &
+                                            graph)
+{
+    int n = graph.size();
+    vector<bool> visited(n, false);
+    vector<vector<int>> components;
+    for (int i = 0; i < n; i++)
+    {
+        if (!visited[i])
+        {
+            vector<int> component;
+            dfsComponent(graph, i, visited, component);
+            components.push_back(component);
+        }
+    }
+    return components;
+}
+
+void dfsIsland(vector<vector<int>> &grid, int r, int c)
+{
+    int rows = grid.size(), cols = grid[0].size();
+    if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] != 1)
+        return;
+    grid[r][c] = 0; // Mark visited
+    dfsIsland(grid, r + 1, c);
+    dfsIsland(grid, r - 1, c);
+    dfsIsland(grid, r, c + 1);
+    dfsIsland(grid, r, c - 1);
+}
+int numIslands(vector<vector<int>> &grid)
+{
+    int count = 0;
+    for (int r = 0; r < (int)grid.size(); r++)
+    {
+        for (int c = 0; c < (int)grid[0].size(); c++)
+        {
+            if (grid[r][c] == 1)
+            {
+                dfsIsland(grid, r, c);
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+void dfs(vector<vector<int>> &graph, int node, vector<bool> &visited)
+{
+    visited[node] = true;
+    for (int neighbor = 0; neighbor < (int)graph.size(); neighbor++)
+    {
+        if (graph[node][neighbor] == 1 && !visited[neighbor])
+            dfs(graph, neighbor, visited);
+    }
+}
+bool isConnected(vector<vector<int>> &graph)
+{
+    int n = graph.size();
+    vector<bool> visited(n, false);
+    dfs(graph, 0, visited);
+    for (int i = 0; i < n; i++)
+        if (!visited[i])
+            return false;
+
+    return true;
+}
+
+bool isBipartite(vector<vector<int>> &graph)
+{
+    int n = graph.size();
+    vector<int> color(n, -1);
+    for (int start = 0; start < n; start++)
+    {
+        if (color[start] != -1)
+            continue;
+        queue<int> q;
+        q.push(start);
+        color[start] = 0;
+        while (!q.empty())
+        {
+            int node = q.front();
+            q.pop();
+            for (int neighbor = 0; neighbor < n; neighbor++)
+            {
+                if (graph[node][neighbor] == 0)
+                    continue;
+                if (color[neighbor] == -1)
+                {
+                    color[neighbor] = 1 - color[node];
+                    q.push(neighbor);
+                }
+                else if (color[neighbor] == color[node])
+                {
+                    return false; // Same color -> not bipartite
+                }
+            }
+        }
+    }
+    return true;
+}
