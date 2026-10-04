@@ -1,0 +1,174 @@
+bool isIdentical(Node* root1, Node* root2) {
+    if (root1 == NULL && root2 == NULL)
+        return true;
+    if (root1 == NULL || root2 == NULL)
+        return false;
+
+    return (root1->data == root2->data)
+        && isIdentical(root1->left, root2->left)
+        && isIdentical(root1->right, root2->right);
+}
+
+int checkBalanced(Node* root) {
+    if (root == NULL)
+        return -1;
+
+    int leftH = checkBalanced(root->left);
+    if (leftH == -2)
+        return -2;
+
+    int rightH = checkBalanced(root->right);
+    if (rightH == -2)
+        return -2;
+
+    if (abs(leftH - rightH) > 1)
+        return -2;
+
+    return 1 + max(leftH, rightH);
+}
+
+bool isBalanced(Node* root) {
+    return checkBalanced(root) != -2;
+}
+
+int diameterHelper(Node* root, int& maxDiam) {
+    if (root == NULL)
+        return 0;
+
+    int leftH = diameterHelper(root->left, maxDiam);
+    int rightH = diameterHelper(root->right, maxDiam);
+
+    maxDiam = max(maxDiam, leftH + rightH + 1);
+    return 1 + max(leftH, rightH);
+}
+
+int diameter(Node* root) {
+    int maxDiam = 0;
+    diameterHelper(root, maxDiam);
+    return maxDiam;
+}
+
+void levelOrder(Node* root) {
+    if (root == NULL)
+        return;
+
+    queue<Node*> q;
+    q.push(root);
+    cout << "Level Order Traversal: ";
+
+    while (!q.empty()) {
+        Node* curr = q.front();
+        q.pop();
+
+        cout << curr->data << " ";
+
+        if (curr->left != NULL)
+            q.push(curr->left);
+        if (curr->right != NULL)
+            q.push(curr->right);
+    }
+}
+
+void mirror(Node* root) {
+    if (root == NULL)
+        return;
+
+    mirror(root->left);
+    mirror(root->right);
+
+    Node* temp = root->left;
+    root->left = root->right;
+    root->right = temp;
+}
+ int sumNodes(Node* root) {
+    if (root == NULL)
+        return 0;
+
+    return root->data + sumNodes(root->left) + sumNodes(root->right);
+}
+
+bool validateBST(Node* root, long long minVal, long long maxVal) {
+    if (root == NULL)
+        return true;
+
+    if (root->data <= minVal || root->data >= maxVal)
+        return false;
+
+    return validateBST(root->left, minVal, root->data)
+        && validateBST(root->right, root->data, maxVal);
+}
+
+bool isValidBST(Node* root) {
+    return validateBST(root, LLONG_MIN, LLONG_MAX);
+}
+
+void kthSmallestHelper(Node* root, int& k, int& result) {
+    if (root == NULL)
+        return;
+
+    kthSmallestHelper(root->left, k, result);
+
+    k--;
+    if (k == 0) {
+        result = root->data;
+        return;
+    }
+
+    kthSmallestHelper(root->right, k, result);
+}
+
+int kthSmallest(Node* root, int k) {
+    int result = -1;
+    kthSmallestHelper(root, k, result);
+    return result;
+}
+
+bool printAncestors(Node* root, int target) {
+    if (root == NULL)
+        return false;
+
+    if (root->data == target)
+        return true;
+
+    if (printAncestors(root->left, target) ||
+        printAncestors(root->right, target)) {
+        cout << root->data << " ";
+        return true;
+    }
+
+    return false;
+}
+
+bool findPath(Node* root, int target, vector<int>& path) {
+    if (root == NULL)
+        return false;
+
+    path.push_back(root->data);
+
+    if (root->data == target)
+        return true;
+
+    if (findPath(root->left, target, path) ||
+        findPath(root->right, target, path))
+        return true;
+
+    path.pop_back();
+    return false;
+}
+
+void printPath(Node* root, int target) {
+    vector<int> path;
+
+    if (!findPath(root, target, path)) {
+        cout << "Node not found" << endl;
+        return;
+    }
+
+    cout << "Path: ";
+    for (int i = 0; i < (int)path.size(); i++) {
+        if (i > 0)
+            cout << " -> ";
+        cout << path[i];
+    }
+    cout << endl;
+}
